@@ -1,10 +1,8 @@
-﻿using System;
-
-namespace TNLPacketAnalyzer.RUN
+﻿namespace TNLPacketAnalyzer.CLI
 {
     public static class Const
     {
-        public static String[] ClassNames =
+        public static readonly string[] ClassNames =
         {
             "RPCMsgEndGhosting",
             "RPCMsgReadyForNormalGhosts",
@@ -17,7 +15,7 @@ namespace TNLPacketAnalyzer.RUN
             "RPCMsgNonGuaranteedFragmented"
         };
 
-        public static String[] NetPacketType =
+        public static readonly string[] NetPacketType =
         {
             "DataPacket",
             "PingPacket",
@@ -25,7 +23,7 @@ namespace TNLPacketAnalyzer.RUN
             "InvalidPacketType"
         };
 
-        public static String[] PacketType =
+        public static readonly string[] PacketType =
         {
             "ConnectChallengeRequest",
             "ConnectChallengeResponse",

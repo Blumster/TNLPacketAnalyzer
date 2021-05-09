@@ -1,28 +1,28 @@
 ﻿using System;
 using System.Text;
 
-namespace TNLPacketAnalyzer.RUN
+namespace TNLPacketAnalyzer.CLI
 {
     public class Reader
     {
-        private readonly Byte[] _array;
-        private readonly Byte[] _stringBuffer = new Byte[256];
-        private Int32 _bytePos;
-        private Int32 _bitPos;
+        private readonly byte[] _array;
+        private readonly byte[] _stringBuffer = new byte[256];
+        private int _bytePos;
+        private int _bitPos;
 
-        public Reader(Byte[] array)
+        public Reader(byte[] array)
         {
             _array = array;
             _bytePos = 0;
             _bitPos = 0;
         }
 
-        public Boolean PeekBit(Int32 bit)
+        public bool PeekBit(int bit)
         {
             return ((_array[_bytePos] >> bit) & 1) == 1;
         }
 
-        public Boolean ReadBit()
+        public bool ReadBit()
         {
             var bit = PeekBit(_bitPos);
 
@@ -31,7 +31,7 @@ namespace TNLPacketAnalyzer.RUN
             return bit;
         }
 
-        public Int64 ReadInt(Int64 bits)
+        public long ReadInt(long bits)
         {
             var ret = 0L;
 
@@ -42,7 +42,7 @@ namespace TNLPacketAnalyzer.RUN
             return ret;
         }
 
-        public void IncreaseBitPos(Int32 by)
+        public void IncreaseBitPos(int by)
         {
             _bitPos += by;
             _bytePos += _bitPos / 8;
@@ -58,16 +58,16 @@ namespace TNLPacketAnalyzer.RUN
             ++_bytePos;
         }
 
-        public String ReadString()
+        public string ReadString()
         {
-            String stringBuf;
+            string stringBuf;
 
-            ReadHuffBuffer(out stringBuf, (Byte)(ReadBit() ? ReadInt(8) : 0));
+            ReadHuffBuffer(out stringBuf, (byte)(ReadBit() ? ReadInt(8) : 0));
 
             return stringBuf;
         }
 
-        public Int64 ReadRangedInt(Int32 start, Int32 end)
+        public long ReadRangedInt(int start, int end)
         {
             var size = end - start + 1;
             var bits = Utils.GetNextBinLog2(size);
@@ -75,16 +75,16 @@ namespace TNLPacketAnalyzer.RUN
             return ReadInt(bits) + start;
         }
 
-        public Boolean IsFinished()
+        public bool IsFinished()
         {
             return _bytePos == _array.Length || (_bytePos == _array.Length - 1 && _bitPos != 0);
         }
 
-        private void ReadHuffBuffer(out String stringBuffer, Byte off = 0)
+        private void ReadHuffBuffer(out string stringBuffer, byte off = 0)
         {
             HuffmanTree.Build();
 
-            Int64 len;
+            long len;
 
             if (ReadBit())
             {
@@ -111,17 +111,17 @@ namespace TNLPacketAnalyzer.RUN
             {
                 len = ReadInt(8);
 
-                var buff = new Byte[len];
+                var buff = new byte[len];
 
                 for (var i = 0; i < len; ++i)
-                    buff[i] = (Byte) ReadInt(8);
+                    buff[i] = (byte) ReadInt(8);
 
                 Array.Copy(buff, 0, _stringBuffer, off, len);
 
                 _stringBuffer[off + len] = 0;
             }
 
-            stringBuffer = Encoding.UTF8.GetString(_stringBuffer, 0, (Int32)len + off);
+            stringBuffer = Encoding.UTF8.GetString(_stringBuffer, 0, (int)len + off);
         }
     }
 }

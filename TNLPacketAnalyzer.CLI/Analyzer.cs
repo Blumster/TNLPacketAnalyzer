@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Text;
 
-namespace TNLPacketAnalyzer.RUN
+namespace TNLPacketAnalyzer.CLI
 {
     public class Analyzer
     {
         public Reader Reader { get; set; }
 
-        public Analyzer(Byte[] array)
+        public Analyzer(byte[] array)
         {
             Reader = new Reader(array);
         }
 
-        public String Run()
+        public string Run()
         {
             var sb = new StringBuilder();
 
@@ -53,7 +53,7 @@ namespace TNLPacketAnalyzer.RUN
 
             if (type != 0)
             {
-                sb.Append("]");
+                sb.Append(']');
                 return;
             }
 
@@ -96,7 +96,7 @@ namespace TNLPacketAnalyzer.RUN
 
                 if (!ungaranteedPhase)
                 {
-                    Int64 seq;
+                    long seq;
                     if (Reader.ReadBit())
                         seq = (prevSeq + 1) & 0x7F;
                     else
@@ -114,10 +114,10 @@ namespace TNLPacketAnalyzer.RUN
                 sb.AppendLine("    ]");
             }
 
-            sb.Append("]");
+            sb.Append(']');
         }
 
-        private void AnalyzeByClassId(StringBuilder sb, Int64 classId)
+        private void AnalyzeByClassId(StringBuilder sb, long classId)
         {
             sb.AppendLine("        Data Block").AppendLine("        [");
 
@@ -277,7 +277,7 @@ namespace TNLPacketAnalyzer.RUN
                     break;
             }
 
-            sb.Append("]");
+            sb.Append(']');
         }
 
         private void AnalyzeConnectChallengeRequestPacket(StringBuilder sb)
@@ -333,7 +333,7 @@ namespace TNLPacketAnalyzer.RUN
 
             // NetConnection::ConnectRequest
             sb.Append("    Net Class Group: ").Append(Reader.ReadInt(32)).AppendLine();
-            sb.Append("    Net Class Group CRC: ").Append((Int32)Reader.ReadInt(32)).AppendLine();
+            sb.Append("    Net Class Group CRC: ").Append(Reader.ReadInt(32)).AppendLine();
 
             // EventConnection::ConnectRequest
             sb.Append("    Class Count: ").Append(Reader.ReadInt(32)).AppendLine();
@@ -399,17 +399,17 @@ namespace TNLPacketAnalyzer.RUN
 
         #region Helpers
 
-        private void ReadByteBuffer(StringBuilder sb, Boolean newLine = true)
+        private void ReadByteBuffer(StringBuilder sb, bool newLine = true)
         {
             ReadByteArray(sb, Reader.ReadInt(10), newLine);
         }
 
-        private void ReadByteArray(StringBuilder sb, Int64 length, Boolean newLine = true)
+        private void ReadByteArray(StringBuilder sb, long length, bool newLine = true)
         {
-            var arr = new Byte[length];
+            var arr = new byte[length];
 
             for (var i = 0; i < arr.Length; ++i)
-                arr[i] = (Byte)Reader.ReadInt(8);
+                arr[i] = (byte)Reader.ReadInt(8);
 
             sb.Append(BitConverter.ToString(arr));
 

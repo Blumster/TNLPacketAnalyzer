@@ -1,19 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace TNLPacketAnalyzer.RUN
+namespace TNLPacketAnalyzer.CLI
 {
     public class Node
     {
-        public Byte Symbol { get; set; }
-        public UInt32 Frequency { get; set; }
+        public byte Symbol { get; set; }
+        public uint Frequency { get; set; }
         public Node Right { get; set; }
         public Node Left { get; set; }
 
-        public UInt32 NumBits { get; set; }
-        public UInt32 Code { get; set; }
+        public uint NumBits { get; set; }
+        public uint Code { get; set; }
 
-        public Boolean IsLeaf()
+        public bool IsLeaf()
         {
             return Left == null && Right == null;
         }
@@ -21,11 +20,11 @@ namespace TNLPacketAnalyzer.RUN
 
     public static class HuffmanTree
     {
-        public static readonly Dictionary<Byte, Node> Leaves = new Dictionary<Byte, Node>();
+        public static readonly Dictionary<byte, Node> Leaves = new Dictionary<byte, Node>();
 
         public static Node Root { get; set; }
 
-        public static Boolean TablesBuilt { get; private set; }
+        public static bool TablesBuilt { get; private set; }
 
         public static void Build()
         {
@@ -41,7 +40,7 @@ namespace TNLPacketAnalyzer.RUN
             {
                 nodes[i] = new Node
                 {
-                    Symbol = (Byte)i,
+                    Symbol = (byte)i,
                     Frequency = CharFreqs[i] + 1,
                     NumBits = 0,
                     Code = 0,
@@ -49,13 +48,13 @@ namespace TNLPacketAnalyzer.RUN
                     Right = null
                 };
 
-                Leaves.Add((Byte)i, nodes[i]);
+                Leaves.Add((byte)i, nodes[i]);
             }
 
             while (currCount != 1)
             {
-                UInt32 min1 = 0xFFFFFFFEU, min2 = 0xFFFFFFFFU;
-                Int32 index1 = -1, index2 = -1;
+                uint min1 = 0xFFFFFFFEU, min2 = 0xFFFFFFFFU;
+                int index1 = -1, index2 = -1;
 
                 for (var i = 0; i < currCount; ++i)
                 {
@@ -81,7 +80,7 @@ namespace TNLPacketAnalyzer.RUN
 
                     var parent = new Node
                     {
-                        Symbol = (Byte)'*',
+                        Symbol = (byte)'*',
                         Frequency = node1.Frequency + node2.Frequency,
                         Left = node1,
                         Right = node2
@@ -101,7 +100,7 @@ namespace TNLPacketAnalyzer.RUN
             GenerateCodes(Root, 0, 0);
         }
 
-        private static void GenerateCodes(Node node, UInt32 code, UInt32 depth)
+        private static void GenerateCodes(Node node, uint code, uint depth)
         {
             if (node.IsLeaf())
             {
@@ -110,20 +109,20 @@ namespace TNLPacketAnalyzer.RUN
             }
             else
             {
-                var leftCode = code & ~(1U << (Int32)depth);
+                var leftCode = code & ~(1U << (int)depth);
                 GenerateCodes(node.Left, leftCode, depth + 1);
 
-                var rightCode = code | (1U << (Int32)depth);
+                var rightCode = code | (1U << (int)depth);
                 GenerateCodes(node.Right, rightCode, depth + 1);
             }
         }
 
-        public static Boolean IsLeaf(Node node)
+        public static bool IsLeaf(Node node)
         {
             return node.IsLeaf();
         }
 
-        public readonly static UInt32[] CharFreqs =
+        public readonly static uint[] CharFreqs =
         {
             0     ,
             0     ,
