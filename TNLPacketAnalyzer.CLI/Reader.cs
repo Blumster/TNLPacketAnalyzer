@@ -10,6 +10,9 @@ namespace TNLPacketAnalyzer.CLI
         private int _bytePos;
         private int _bitPos;
 
+        public int BitSize => _array.Length * 8;
+        public int BitPos => _bytePos * 8 + _bitPos;
+
         public Reader(byte[] array)
         {
             _array = array;
@@ -40,6 +43,26 @@ namespace TNLPacketAnalyzer.CLI
                     ret |= 1L << i;
 
             return ret;
+        }
+
+        public float ReadSingle(long bits)
+        {
+            var longVal = ReadInt(bits);
+
+            return BitConverter.ToSingle(BitConverter.GetBytes(longVal), 0);
+        }
+
+        public int ReadSignedInt(byte bitCount)
+        {
+            if (ReadBit())
+                return -(int)ReadInt((byte)(bitCount - 1));
+
+            return (int)ReadInt((byte)(bitCount - 1));
+        }
+
+        public float ReadSignedFloat(byte bitCount)
+        {
+            return ReadSignedInt(bitCount) / (float)((1 << (bitCount - 1)) - 1);
         }
 
         public void IncreaseBitPos(int by)

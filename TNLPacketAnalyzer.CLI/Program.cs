@@ -24,8 +24,13 @@ namespace TNLPacketAnalyzer.CLI
                     return;
                 }
 
+                var netInterface = new NetInterface();
+
                 sw.WriteLine($"Processing file: {file}");
                 sw.WriteLine();
+
+                string prefix = string.Empty;
+                string ip = string.Empty;
 
                 var lines = File.ReadAllLines(file);
                 foreach (var line in lines)
@@ -33,13 +38,21 @@ namespace TNLPacketAnalyzer.CLI
                     if (line.Length == 0)
                         continue;
 
+                    if (line.StartsWith("RECV") || line.StartsWith("SEND"))
+                    {
+                        ip = line.Split(" - ")[2];
+                        prefix = line[0..4];
+                        sw.WriteLine(line);
+                        continue;
+                    }
+
                     var arr = new byte[(line.Length + 1) / 3];
                     var split = line.Split(new[] { '-' });
 
                     for (var i = 0; i < arr.Length; ++i)
                         arr[i] = byte.Parse(split[i], NumberStyles.AllowHexSpecifier);
 
-                    sw.WriteLine(new Analyzer(arr).Run());
+                    sw.WriteLine(netInterface.ProcessPacket(arr, prefix == "RECV", ip));
                 }
             }
         }
